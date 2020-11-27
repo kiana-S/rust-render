@@ -47,4 +47,23 @@ impl Color {
         let blue  = (255.0 * self.blue)  as u8;
         [red, green, blue]
     }
+
+    pub fn black() -> Self {
+        Color {
+            red:   0.0,
+            green: 0.0,
+            blue:  0.0,
+
+            _private: ()
+        }
+    }
+    pub fn white() -> Self {
+        Color {
+            red:   1.0,
+            green: 1.0,
+            blue:  1.0,
+
+            _private: ()
+        }
+    }
 }

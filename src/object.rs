@@ -4,7 +4,7 @@ mod triangle; pub use triangle::*;
 
 use na::*;
 
-use crate::types::Ray;
+use crate::types::*;
 
 pub enum Object {
     Sphere(Sphere)
@@ -17,9 +17,15 @@ impl Object {
         }
     }
 
-    pub fn normal(&self, ray: Ray) -> Unit<Vector3<f32>> {
+    pub fn getcolor(&self, point: Point3<f32>) -> Color {
         match *self {
-            Object::Sphere(ref sphere) => sphere.normal(ray)
+            Object::Sphere(ref sphere) => sphere.getcolor(point)
+        }
+    }
+
+    pub fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> {
+        match *self {
+            Object::Sphere(ref sphere) => sphere.normal(point)
         }
     }
 }

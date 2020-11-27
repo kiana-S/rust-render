@@ -11,19 +11,20 @@ mod camera; use camera::*;
 mod types; use types::*;
 mod object; use object::*;
 
+fn trace(ray: Ray, scene: &Scene) -> Option<(&Object, f32)> {
+    scene.iter()
+         .filter_map(|obj| obj.intersect(ray)
+                              .map(|x| (obj, x)))
+         .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal))
+}
+
 fn cast_ray(ray: Ray, scene: &Scene) -> Color {
-    //Color::new(0.0, -ray.direction.x, ray.direction.y)
+    if let Some((obj, dist)) = trace(ray, scene) {
+        let point = ray.project(dist);
 
-    let closest = scene.iter()
-                       .filter_map(|obj| obj.intersect(ray)
-                                            .map(|x| (obj, x)))
-                       .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal));
-
-    if closest.is_some() {
-        Color::new(1.0, 1.0, 1.0)
-    } else {
-        Color::new(0.0, 0.0, 0.0)
+        obj.getcolor(point)
     }
+    else { Color::black() }
 }
 
 fn render(camera: &Camera, scene: &Scene, filename: &str) -> std::io::Result<()> {
@@ -54,8 +55,8 @@ fn main() -> std::io::Result<()> {
     let camera = Camera::new(Point3::new(0.0,0.0,0.0), Vector3::new(0.0,0.0,-1.0), 1.0, 2.0, 2.0, 400, 400);
 
     let scene = vec![
-        Object::Sphere(Sphere::new(0.0,0.0,-5.0,2.0)),
-        Object::Sphere(Sphere::new(-3.0,0.0,-8.0,2.5))
+        Object::Sphere(Sphere::new(0.0,0.0,-5.0,2.0, |_, _| Color::white())),
+        Object::Sphere(Sphere::new(-3.0,0.0,-8.0,2.5, |_, _| Color::white()))
     ];
 
     render(&camera, &scene, "out.ppm")
