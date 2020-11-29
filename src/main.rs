@@ -55,8 +55,8 @@ fn main() -> std::io::Result<()> {
     let camera = Camera::new(Point3::new(0.0,0.0,0.0), Vector3::new(0.0,0.0,-1.0), 1.0, 2.0, 2.0, 400, 400);
 
     let scene = vec![
-        Object::Sphere(Sphere::new(0.0,0.0,-5.0,2.0, |_, _| Color::white())),
-        Object::Sphere(Sphere::new(-3.0,0.0,-8.0,2.5, |_, _| Color::white()))
+        Object::Sphere(Sphere::new_solid(0.0,0.0,-5.0,2.0, Color::white())),
+        Object::Sphere(Sphere::new_solid(-3.0,0.0,-8.0,2.5, Color::white()))
     ];
 
     render(&camera, &scene, "out.ppm")
