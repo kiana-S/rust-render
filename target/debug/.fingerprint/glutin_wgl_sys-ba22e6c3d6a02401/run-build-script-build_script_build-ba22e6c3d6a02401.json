@@ -1,1 +1,0 @@
-{"rustc":12207601712932690048,"features":"","target":0,"profile":0,"path":0,"deps":[[14488017585814234390,"build_script_build",false,1187499039144999481]],"local":[{"RerunIfChanged":{"output":"debug\\build\\glutin_wgl_sys-ba22e6c3d6a02401\\output","paths":["build.rs"]}}],"rustflags":[],"metadata":0}
