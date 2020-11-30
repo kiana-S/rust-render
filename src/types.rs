@@ -21,7 +21,7 @@ impl Ray {
     pub fn project(&self, t: f32) -> Point3<f32> { self.origin + t * self.direction.into_inner() }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Color {
     pub red: f32,
     pub green: f32,

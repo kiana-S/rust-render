@@ -6,13 +6,13 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
-use super::base::*;
+use super::Surface;
 
 pub struct Sphere {
     pub center: Point3<f32>,
     pub radius: f32,
 
-    pub texture: Box<dyn Fn(f32, f32) -> Color>
+    texture: Box<dyn Fn(f32, f32) -> Color>
 }
 
 impl Sphere {
@@ -54,8 +54,8 @@ impl Surface for Sphere {
 
         if t0 > t1 { std::mem::swap(&mut t0, &mut t1); }
 
-        if t0 > 0.0 { Some(t0) }
-        else if t1 > 0.0 { Some(t1) }
+        if t0 >= 0.0 { Some(t0) }
+        else if t1 >= 0.0 { Some(t1) }
         else { None }
     }
 

@@ -17,11 +17,11 @@ pub struct Camera {
 }
 
 impl Camera {
-    // Constructs a new camera from a position and viewing direction
-    // (assuming the camera is oriented upright).
-    pub fn new(pos: Point3<f32>, dir: Vector3<f32>, focal_length: f32,
+
+    // Constructs a new camera from a position and viewing direction.
+    pub fn new_(pos: Point3<f32>, dir: Vector3<f32>, up: Vector3<f32>, focal_length: f32,
                canvas_x: f32, canvas_y: f32, image_x: u32, image_y: u32) -> Self {
-        let iso = Isometry3::face_towards(&pos, &(pos + dir), &Vector3::y());
+        let iso = Isometry3::face_towards(&pos, &(pos + dir), &up);
         Camera {
             matrix: iso,
             focal_length: focal_length,
@@ -29,6 +29,12 @@ impl Camera {
             image_size: Vector2::new(image_x, image_y)
         }
     }
+
+    // Constructs a new camera from a position and viewing direction
+    // (assuming the camera is oriented upright).
+    pub fn new(pos: Point3<f32>, dir: Vector3<f32>, focal_length: f32,
+               canvas_x: f32, canvas_y: f32, image_x: u32, image_y: u32) -> Self
+        { Camera::new_(pos, dir, Vector3::y(), focal_length, canvas_x, canvas_y, image_x, image_y) }
 
     pub fn pos(&self) -> Point3<f32> { Point3::from(self.matrix.translation.vector) }
 

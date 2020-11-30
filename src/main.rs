@@ -52,10 +52,12 @@ fn render(camera: &Camera, scene: &Scene, filename: &str) -> std::io::Result<()>
 
 fn main() -> std::io::Result<()> {
 
-    let camera = Camera::new(Point3::new(0.0,0.0,0.0), Vector3::new(0.0,0.0,-1.0), 1.0, 2.0, 2.0, 500, 500);
+    let camera = Camera::new(Point3::new(0.0,1.0,0.0), Vector3::new(0.0,0.0,1.0), 1.0, 2.0, 2.0, 500, 500);
 
     let scene = vec![
-        Object::new(Sphere::new(0.0,0.0,-3.0,2.0, |x, y| Color::new(x, 0.0, y * 2.0)))
+        Object::new(Plane::xz(|x, y| Color::new(y.sin(), x.cos(), 0.0))),
+        Object::new(Plane::new(Point3::new(0.0, 2.0, 0.0), Vector3::z(), Vector3::x(), |x, y| Color::new(x.sin(), y.cos(), 0.0)))
+        // Object::new(Sphere::new_solid(0.0, 0.0, 0.0, 3.0, Color::white()))
     ];
 
     render(&camera, &scene, "out.ppm")
