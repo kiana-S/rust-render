@@ -19,22 +19,22 @@ pub struct Camera {
 impl Camera {
 
     // Constructs a new camera from a position and viewing direction.
-    pub fn new_(pos: Point3<f32>, dir: Vector3<f32>, up: Vector3<f32>, focal_length: f32,
-               canvas_x: f32, canvas_y: f32, image_x: u32, image_y: u32) -> Self {
+    pub fn new_(pos: Point3<f32>, dir: Vector3<f32>, up: Vector3<f32>,
+            focal_length: f32, aspect_ratio: f32, canvas_x: f32, image_x: u32) -> Self {
         let iso = Isometry3::face_towards(&pos, &(pos + dir), &up);
         Camera {
             matrix: iso,
             focal_length: focal_length,
-            canvas_size: Vector2::new(canvas_x, canvas_y),
-            image_size: Vector2::new(image_x, image_y)
+            canvas_size: Vector2::new(canvas_x, canvas_x * aspect_ratio),
+            image_size: Vector2::new(image_x, (image_x as f32 * aspect_ratio) as u32)
         }
     }
 
     // Constructs a new camera from a position and viewing direction
     // (assuming the camera is oriented upright).
-    pub fn new(pos: Point3<f32>, dir: Vector3<f32>, focal_length: f32,
-               canvas_x: f32, canvas_y: f32, image_x: u32, image_y: u32) -> Self
-        { Camera::new_(pos, dir, Vector3::y(), focal_length, canvas_x, canvas_y, image_x, image_y) }
+    pub fn new(pos: Point3<f32>, dir: Vector3<f32>,
+            focal_length: f32, aspect_ratio: f32, canvas_x: f32, image_x: u32) -> Self
+        { Camera::new_(pos, dir, Vector3::y(), focal_length, aspect_ratio, canvas_x, image_x) }
 
     pub fn pos(&self) -> Point3<f32> { Point3::from(self.matrix.translation.vector) }
 
@@ -70,9 +70,8 @@ mod tests {
     fn camera_pos() {
         let camera: Camera = Camera::new(Point3::new(-5.0, 0.0, 0.0),
                                          Vector3::new(1.0, 0.0, 0.0),
-                                         1.0,
-                                         2.0, 2.0,
-                                         800, 800);
+                                         1.0, 1.0,
+                                         2.0, 800);
 
         assert_eq!(camera.pos(), Point3::new(-5.0, 0.0, 0.0));
     }
@@ -81,9 +80,8 @@ mod tests {
     fn camera_matrix1() {
         let camera: Camera = Camera::new(Point3::new(-5.0, 0.0, 0.0),
                                          Vector3::new(1.0, 0.0, 0.0),
-                                         1.0,
-                                         2.0, 2.0,
-                                         800, 800);
+                                         1.0, 1.0,
+                                         2.0, 800);
 
         let point = Point3::new(0.0, 0.0, 4.0);
         let point = camera.matrix * point;
@@ -95,9 +93,8 @@ mod tests {
     fn camera_matrix2() {
         let camera: Camera = Camera::new(Point3::new(-5.0, 0.0, 0.0),
                                          Vector3::new(1.0, 0.0, 0.0),
-                                         1.0,
-                                         2.0, 2.0,
-                                         800, 800);
+                                         1.0, 1.0,
+                                         2.0, 800);
 
         let point = Point3::new(4.0, 0.0, 0.0);
         let point = camera.matrix * point;
@@ -109,9 +106,8 @@ mod tests {
     fn camera_project1() {
         let camera: Camera = Camera::new(Point3::new(-5.0, 0.0, 0.0),
                                          Vector3::new(1.0, 0.0, 0.0),
-                                         1.0,
-                                         2.0, 2.0,
-                                         800, 800);
+                                         1.0, 1.0,
+                                         2.0, 800);
 
         let point = camera.project(400, 400);
         let point = round(point); // round to avoid errors
@@ -122,9 +118,8 @@ mod tests {
     fn camera_project2() {
         let camera: Camera = Camera::new(Point3::new(-5.0, 0.0, 0.0),
                                          Vector3::new(1.0, 0.0, 0.0),
-                                         1.0,
-                                         2.0, 2.0,
-                                         800, 800);
+                                         1.0, 1.0,
+                                         2.0, 800);
 
         let point = camera.project(0, 0);
         let point = round(point); // round to avoid errors
