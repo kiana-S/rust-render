@@ -15,8 +15,8 @@ This list may be changed or extended in the future.
   - [x] Sphere normal generation
   - [x] Color mapping on spheres
 - [ ] Plane objects
-  - [ ] Plane struct
-  - [ ] Plane intersection test
+  - [x] Plane struct
+  - [x] Plane intersection test
   - [ ] Color mapping on planes
 - [ ] Triangle objects
   - [ ] Triangle struct

@@ -27,7 +27,14 @@ impl Plane {
         { Plane::new(center, normal, move |_, _| color) }
 
     pub fn intersect(&self, ray: Ray) -> Option<f32> {
-        unimplemented!()
+
+        let d = self.normal.dot(&ray.direction);
+        if d < 1e-6 { return None; }
+
+        let t = (self.center - ray.origin).dot(&*self.normal) / d;
+
+        if t >= 0.0 { Some(t) }
+        else { None }
     }
 
     pub fn getcolor(&self, point: Point3<f32>) -> Color {

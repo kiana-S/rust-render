@@ -1,5 +1,6 @@
 
 mod sphere; pub use sphere::*;
+mod plane; pub use plane::*;
 mod triangle; pub use triangle::*;
 
 use na::*;
