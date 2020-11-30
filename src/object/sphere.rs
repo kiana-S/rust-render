@@ -25,7 +25,8 @@ impl Sphere {
         }
     }
 
-    pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, color: Color) -> Self { Sphere::new(x, y, z, radius, Box::new(move |_, _| color)) }
+    pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, color: Color) -> Self
+        { Sphere::new(x, y, z, radius, move |_, _| color) }
 
     // Determines if a ray intersects the circle.
     // If so, returns the distance to the intersection point.

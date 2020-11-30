@@ -14,6 +14,10 @@ This list may be changed or extended in the future.
   - [x] Sphere intersection test
   - [x] Sphere normal generation
   - [x] Color mapping on spheres
+- [ ] Plane objects
+  - [ ] Plane struct
+  - [ ] Plane intersection test
+  - [ ] Color mapping on planes
 - [ ] Triangle objects
   - [ ] Triangle struct
   - [ ] Triangle intersection test
@@ -36,4 +40,3 @@ This list may be changed or extended in the future.
   - [ ] Transparency
     - [ ] Simple transparency
     - [ ] Refraction
-    
