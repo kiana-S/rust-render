@@ -4,6 +4,7 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
+use super::base::*;
 
 pub struct Plane {
     pub center: Point3<f32>,
@@ -25,8 +26,10 @@ impl Plane {
 
     pub fn new_solid(center: Point3<f32>, normal: Vector3<f32>, color: Color) -> Self
         { Plane::new(center, normal, move |_, _| color) }
+}
 
-    pub fn intersect(&self, ray: Ray) -> Option<f32> {
+impl Surface for Plane {
+    fn intersect(&self, ray: Ray) -> Option<f32> {
 
         let d = self.normal.dot(&ray.direction);
         if d < 1e-6 { return None; }
@@ -37,9 +40,9 @@ impl Plane {
         else { None }
     }
 
-    pub fn getcolor(&self, point: Point3<f32>) -> Color {
+    fn normal(&self, _point: Point3<f32>) -> Unit<Vector3<f32>> { self.normal }
+
+    fn getcolor(&self, point: Point3<f32>) -> Color {
         unimplemented!()
     }
-
-    pub fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> { self.normal }
 }

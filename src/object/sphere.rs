@@ -6,6 +6,7 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
+use super::base::*;
 
 pub struct Sphere {
     pub center: Point3<f32>,
@@ -27,10 +28,10 @@ impl Sphere {
 
     pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, color: Color) -> Self
         { Sphere::new(x, y, z, radius, move |_, _| color) }
+}
 
-    // Determines if a ray intersects the circle.
-    // If so, returns the distance to the intersection point.
-    pub fn intersect(&self, ray: Ray) -> Option<f32> {
+impl Surface for Sphere {
+    fn intersect(&self, ray: Ray) -> Option<f32> {
         fn solve_quadratic(a: f32, b: f32, c: f32) -> Option<(f32, f32)> {
             let discr = b * b - 4.0 * a * c;
 
@@ -58,7 +59,11 @@ impl Sphere {
         else { None }
     }
 
-    pub fn getcolor(&self, point: Point3<f32>) -> Color {
+    fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> {
+        Unit::new_normalize(point - self.center)
+    }
+
+    fn getcolor(&self, point: Point3<f32>) -> Color {
         let normal = self.normal(point);
 
         // In this particular case, the normal is simular to a point on a unit sphere
@@ -70,9 +75,5 @@ impl Sphere {
         let y = normal.y.acos() / PI;
 
         (*self.texture)(x, y)
-    }
-
-    pub fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> {
-        Unit::new_normalize(point - self.center)
     }
 }
