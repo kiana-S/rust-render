@@ -7,11 +7,20 @@ use na::*;
 
 use crate::types::*;
 
+// A trait for types that can be in Objects.
 pub trait Surface {
+
+    // Takes in a ray and performs an intersection test
+    // on itself. If the ray intersects the object,
+    // returns the distance to the intersection point.
     fn intersect(&self, ray: Ray) -> Option<f32>;
 
+    // Takes in a point (assumed to be on the object's surface)
+    // and returns the normal vector off of that point.
     fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>>;
 
+    // Takes in a point (assumed to be on the object's surface)
+    // and returns the color information on that point.
     fn getcolor(&self, point: Point3<f32>) -> Color;
 }
 

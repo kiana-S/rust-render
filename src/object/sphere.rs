@@ -9,13 +9,15 @@ use crate::types::*;
 use super::Surface;
 
 pub struct Sphere {
-    pub center: Point3<f32>,
-    pub radius: f32,
+    pub center: Point3<f32>, // Center point of the sphere.
+    pub radius: f32,         // Radius of the sphere.
 
-    texture: Box<dyn Fn(f32, f32) -> Color>
+    texture: Box<dyn Fn(f32, f32) -> Color> // Texture map.
+                                            // Uses spherical coordinates (normalized from 0-1) as input.
 }
 
 impl Sphere {
+    // Creates a new sphere.
     pub fn new<F: 'static>(x: f32, y: f32, z: f32, radius: f32, texture: F) -> Self
         where F: Fn(f32, f32) -> Color
     {
@@ -26,6 +28,7 @@ impl Sphere {
         }
     }
 
+    // Creates a new sphere of a solid color.
     pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, color: Color) -> Self
         { Sphere::new(x, y, z, radius, move |_, _| color) }
 }
@@ -69,8 +72,6 @@ impl Surface for Sphere {
         // In this particular case, the normal is simular to a point on a unit sphere
         // centred around the origin. We can thus use the normal coordinates to compute
         // the spherical coordinates of the point.
-        // atan2 returns a value in the range [-pi, pi] and we need to remap it to range [0, 1]
-        // acosf returns a value in the range [0, pi] and we also need to remap it to the range [0, 1]
         let x = 0.5 + normal.z.atan2(normal.x) / (2.0 * PI);
         let y = normal.y.acos() / PI;
 

@@ -19,7 +19,7 @@ This list may be changed or extended in the future.
   - [x] Plane intersection test
   - [x] Color mapping on planes
 - [ ] Triangle objects
-  - [ ] Triangle struct
+  - [x] Triangle struct
   - [ ] Triangle intersection test
   - [ ] Triangle normal generation
   - [ ] Color mapping on triangles

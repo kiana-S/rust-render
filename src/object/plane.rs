@@ -7,15 +7,18 @@ use crate::types::*;
 use super::Surface;
 
 pub struct Plane {
-    pub center: Point3<f32>,
-    pub normal: Unit<Vector3<f32>>,
+    pub center: Point3<f32>,        // Plane origin (used for texture mapping).
+    pub normal: Unit<Vector3<f32>>, // Precomputed plane normal.
 
-    x_axis: Vector3<f32>,
-    y_axis: Vector3<f32>,
-    texture: Box<dyn Fn(f32, f32) -> Color>
+    x_axis: Vector3<f32>, // Plane x-axis (The 3D direction that corresponds to the x-direction on the plane).
+    y_axis: Vector3<f32>, // Plane y-axis (The 3D direction that corresponds to the y-direction on the plane).
+
+    texture: Box<dyn Fn(f32, f32) -> Color> // Texture map.
+                                            // Input coordinates are defined in terms of the axes above.
 }
 
 impl Plane {
+    // Creates a new plane.
     pub fn new<F: 'static>(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, texture: F) -> Self
         where F: Fn(f32, f32) -> Color
     {
@@ -28,12 +31,33 @@ impl Plane {
         }
     }
 
+    // Creates a new plane with the normal flipped.
+    pub fn new_flip<F: 'static>(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, texture: F) -> Self
+        where F: Fn(f32, f32) -> Color
+    {
+        Plane {
+            center: center,
+            normal: Unit::new_normalize(y_axis.cross(&x_axis)),
+            x_axis: x_axis,
+            y_axis: y_axis,
+            texture: Box::new(texture)
+        }
+    }
+
+    // Creates a new plane of a solid color.
     pub fn new_solid(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, color: Color) -> Self
         { Plane::new(center, x_axis, y_axis, move |_, _| color) }
 
+    // Creates a new flipped plane of a solid color.
+    pub fn new_solid_flip(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, color: Color) -> Self
+        { Plane::new_flip(center, x_axis, y_axis, move |_, _| color) }
+
+
+    // Creates a new XY-plane with the given texture map.
     pub fn xy<F: 'static + Fn(f32, f32) -> Color>(texture: F) -> Self
         { Plane::new(Point3::origin(), Vector3::x(), Vector3::y(), texture) }
 
+    // Creates a new XZ-plane with the given texture map.
     pub fn xz<F: 'static + Fn(f32, f32) -> Color>(texture: F) -> Self
         { Plane::new(Point3::origin(), Vector3::x(), Vector3::z(), texture) }
 }
@@ -42,7 +66,7 @@ impl Surface for Plane {
     fn intersect(&self, ray: Ray) -> Option<f32> {
 
         let d = self.normal.dot(&ray.direction);
-        if d < 1e-6 { return None; }
+        if d < 1e-5 { return None; }
 
         let t = (self.center - ray.origin).dot(&*self.normal) / d;
 
