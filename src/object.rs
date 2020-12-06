@@ -29,7 +29,7 @@ pub struct Object {
 }
 
 impl Object {
-    pub fn new<S: 'static + Surface>(surface: S) -> Self {
+    pub fn new(surface: impl 'static + Surface) -> Self {
         Object { surface: Box::new(surface) }
     }
 

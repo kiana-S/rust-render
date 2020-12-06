@@ -48,22 +48,8 @@ impl Color {
         [red, green, blue]
     }
 
-    pub fn black() -> Self {
-        Color {
-            red:   0.0,
-            green: 0.0,
-            blue:  0.0,
+    pub fn gray(brightness: f32) -> Self { Color::new(brightness, brightness, brightness) }
 
-            _private: ()
-        }
-    }
-    pub fn white() -> Self {
-        Color {
-            red:   1.0,
-            green: 1.0,
-            blue:  1.0,
-
-            _private: ()
-        }
-    }
+    pub fn black() -> Self { Color::gray(0.0) }
+    pub fn white() -> Self { Color::gray(1.0) }
 }
