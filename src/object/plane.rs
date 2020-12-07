@@ -17,6 +17,7 @@ pub struct Plane {
                                             // Input coordinates are defined in terms of the axes above.
 }
 
+#[allow(dead_code)]
 impl Plane {
     // Creates a new plane.
     pub fn new<F: 'static>(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, texture: F) -> Self

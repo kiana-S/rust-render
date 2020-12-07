@@ -16,6 +16,7 @@ pub struct Sphere {
                                             // Uses spherical coordinates (normalized from 0-1) as input.
 }
 
+#[allow(dead_code)]
 impl Sphere {
     // Creates a new sphere.
     pub fn new<F: 'static>(x: f32, y: f32, z: f32, radius: f32, texture: F) -> Self

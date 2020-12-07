@@ -24,7 +24,7 @@ This list may be changed or extended in the future.
   - [x] Triangle normal generation
   - [x] Color mapping on triangles
   - [x] Triangle mesh struct
-  - [ ] Triangle mesh intersection test
+  - [x] Triangle mesh intersection test
 - [ ] Bounding boxes
 - [ ] Direct lighting
   - [ ] Point light sources
