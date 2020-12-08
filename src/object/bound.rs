@@ -18,17 +18,10 @@ pub struct Bound {
 
 impl Bound {
     pub fn is_intersected(&self, ray: Ray) -> bool {
-
         if self.bypass { return true; }
 
         let l = ray.origin - self.center;
-
-        let b_2 = ray.direction.dot(&l);
-        let c = l.norm_squared() - self.radius * self.radius;
-
-        let discr = b_2 * b_2 * c;
-
-        discr >= 0.0
+        l.norm_squared() >= self.radius * self.radius
     }
 
     pub fn contains(&self, point: &Point3<f32>) -> bool { distance(&self.center, point) < self.radius }

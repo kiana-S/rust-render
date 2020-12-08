@@ -51,7 +51,7 @@ impl Surface for Sphere {
 
         let l = ray.origin - self.center;
         let b = 2.0 * ray.direction.dot(&l);
-        let c = l.normsquared() - self.radius * self.radius;
+        let c = l.norm_squared() - self.radius * self.radius;
 
         let (mut t0, mut t1) = solve_quadratic(b, c)?;
 
