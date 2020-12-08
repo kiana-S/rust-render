@@ -4,7 +4,7 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
-use super::Surface;
+use super::{Surface, bound::*};
 
 pub struct Plane {
     pub center: Point3<f32>,        // Plane origin (used for texture mapping).
@@ -86,6 +86,10 @@ impl Surface for Plane {
 
         (*self.texture)(x, y)
     }
+
+    // Planes are infinite, so no finite
+    // bounding sphere could possibly contain one.
+    fn bound(&self) -> Bound { Bound::bypass() }
 }
 
 #[cfg(test)]

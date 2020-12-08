@@ -6,7 +6,7 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
-use super::Surface;
+use super::{Surface, bound::*};
 
 pub struct Triangle {
     pub v1: usize, // Handles to 3 vertices.
@@ -162,6 +162,85 @@ impl Surface for TriangleMesh {
     fn getcolor(&self, point: Point3<f32>) -> Color {
         self.closest_tri(point).getcolor(&self.vertices, point)
     }
+
+    // Uses Welzl's algorithm to solve the bounding sphere problem
+    fn bound(&self) -> Bound {
+        fn triangle_sphere(point1: &Point3<f32>, point2: &Point3<f32>, point3: &Point3<f32>) -> (Point3<f32>, f32) {
+            let a = point3 - point1;
+            let b = point2 - point1;
+
+            let crs = b.cross(&a);
+
+            let to_center = (crs.cross(&b) * a.norm_squared() + a.cross(&crs) * b.norm_squared())
+                            / (2.0 * crs.norm_squared());
+
+            let radius = to_center.norm();
+
+            (point1 + to_center, radius)
+        }
+
+        fn tetrahedron_sphere(point1: &Point3<f32>, point2: &Point3<f32>, point3: &Point3<f32>, point4: &Point3<f32>) -> (Point3<f32>, f32) {
+            let matrix = Matrix4::from_rows(&[point1.to_homogeneous().transpose(),
+                                            point2.to_homogeneous().transpose(),
+                                            point3.to_homogeneous().transpose(),
+                                            point4.to_homogeneous().transpose()]);
+
+            let a = matrix.determinant() * 2.0;
+            let mut matrix_mut = matrix.clone();
+
+            let squares = Vector4::new(point1.coords.norm_squared(), point2.coords.norm_squared(), point3.coords.norm_squared(), point4.coords.norm_squared());
+            matrix_mut.set_column(0, &squares);
+            let center_x = matrix_mut.determinant();
+
+            matrix_mut.set_column(1, &matrix.index((.., 0)));
+            let center_y = -matrix_mut.determinant();
+
+            matrix_mut.set_column(2, &matrix.index((.., 1)));
+            let center_z = matrix_mut.determinant();
+
+            let center = Point3::new(center_x / a, center_y / a, center_z / a);
+            let radius = distance(point1, &center);
+
+            (center, radius)
+        }
+
+        fn smallest_sphere(points: Vec<&Point3<f32>>, boundary: Vec<&Point3<f32>>) -> (Point3<f32>, f32) {
+            println!("{:?}\n{:?}\n", points, boundary);
+            if points.len() == 0 || boundary.len() == 4 {
+                match boundary.len() {
+                    0 => (Point3::new(0.0, 0.0, 0.0), 0.0),
+                    1 => (*boundary[0], 0.0),
+                    2 => { let half_span = 0.5 * (boundary[1] - boundary[0]);
+                            (*boundary[0] + half_span, half_span.norm()) },
+                    3 => triangle_sphere(boundary[0], boundary[1], boundary[2]),
+                    4 => tetrahedron_sphere(boundary[0], boundary[1], boundary[2], boundary[3]),
+                    _ => unreachable!()
+                }
+            } else {
+                let removed = points[0];
+                let points = Vec::from(&points[1..]);
+
+                let bound = smallest_sphere(points.clone(), boundary.clone());
+                if distance(&bound.0, removed) < bound.1 { return bound; }
+
+                let mut boundary = boundary.clone();
+                boundary.push(removed);
+
+                smallest_sphere(points, boundary)
+            }
+        }
+
+        extern crate rand;
+        use rand::thread_rng;
+        use rand::seq::SliceRandom;
+
+        let mut points: Vec<&Point3<f32>> = self.vertices.iter().collect();
+        points.shuffle(&mut thread_rng());
+
+        let (center, radius) = smallest_sphere(points, Vec::new());
+
+        Bound { center: center, radius: radius + 0.01, bypass: false }
+    }
 }
 
 #[cfg(test)]
@@ -199,4 +278,66 @@ mod tests {
 
         assert_eq!(roundcolor(triangle.getcolor(point)), roundcolor(Color::new(t, u, v)));
     }
+
+    #[test]
+    fn triangle_bounds() {
+        let point1 = Point3::new(0.0, 0.0, 0.0);
+        let point2 = Point3::new(1.0, 0.0, 0.0);
+        let point3 = Point3::new(0.0, 1.0, 0.0);
+
+        let triangle = TriangleMesh::singleton_solid(point1, point2, point3, Color::black());
+
+        let bound = triangle.bound();
+
+        println!("{:?}", bound);
+
+        assert!(bound.contains(&point1));
+        assert!(bound.contains(&point2));
+        assert!(bound.contains(&point3));
+    }
+    /*
+    #[test]
+    fn triangle_tobound() {
+        let point1 = Point3::new(-3.0, 4.0, -6.0);
+        let point2 = Point3::new(5.0, -2.0, -7.0);
+        let point3 = Point3::new(9.0, -7.0, 3.0);
+
+        let (center, radius) = triangle_sphere(&point1, &point2, &point3);
+        let bound = Bound { center: center, radius: radius + 0.01, bypass: false };
+
+        println!("{:?}", bound);
+
+        println!("{}\n{}\n{}", distance(&bound.center, &point1),
+                                distance(&bound.center, &point2),
+                                distance(&bound.center, &point3));
+
+        assert!(bound.contains(&point1));
+        assert!(bound.contains(&point2));
+        assert!(bound.contains(&point3));
+    }
+
+    #[test]
+    fn triangle_tetrabound() {
+        let point1 = Point3::new(8.0, -2.0, -5.0);
+        let point2 = Point3::new(-3.0, 4.0, -6.0);
+        let point3 = Point3::new(-3.0, -9.0, 3.0);
+        let point4 = Point3::new(-6.0, 5.0, -9.0);
+
+        let (center, radius) = tetrahedron_sphere(&point1, &point2, &point3, &point4);
+
+        let bound = Bound { center: center, radius: radius + 0.01, bypass: false };
+
+        println!("{:?}", bound);
+
+        println!("{}\n{}\n{}\n{}", distance(&bound.center, &point1),
+                                distance(&bound.center, &point2),
+                                distance(&bound.center, &point3),
+                                distance(&bound.center, &point4));
+
+        assert!(bound.contains(&point1));
+        assert!(bound.contains(&point2));
+        assert!(bound.contains(&point3));
+        assert!(bound.contains(&point4));
+    }
+    */
 }

@@ -30,6 +30,7 @@ pub struct Color {
     _private: () // Private field prevents direct construction
 }
 
+#[allow(dead_code)]
 impl Color {
     pub fn new(red: f32, green: f32, blue: f32) -> Self {
         Color {

@@ -6,7 +6,7 @@ use na::*;
 use na::geometry::Point3;
 
 use crate::types::*;
-use super::Surface;
+use super::{Surface, bound::*};
 
 pub struct Sphere {
     pub center: Point3<f32>, // Center point of the sphere.
@@ -36,25 +36,24 @@ impl Sphere {
 
 impl Surface for Sphere {
     fn intersect(&self, ray: Ray) -> Option<f32> {
-        fn solve_quadratic(a: f32, b: f32, c: f32) -> Option<(f32, f32)> {
-            let discr = b * b - 4.0 * a * c;
+        fn solve_quadratic(b: f32, c: f32) -> Option<(f32, f32)> {
+            let discr = b * b - 4.0 * c;
 
             if discr < 0.0 { None }
             else if discr == 0.0 {
-                let x = -0.5 * b / a;
+                let x = -0.5 * b;
                 Some((x, x))
             } else {
                 let q = if b > 0.0 { -0.5 * (b + discr.sqrt()) } else { -0.5 * (b - discr.sqrt()) };
-                Some((q / a, c / q))
+                Some((q, c / q))
             }
         }
 
         let l = ray.origin - self.center;
-        let a = ray.direction.dot(&ray.direction);
         let b = 2.0 * ray.direction.dot(&l);
-        let c = l.dot(&l) - self.radius * self.radius;
+        let c = l.normsquared() - self.radius * self.radius;
 
-        let (mut t0, mut t1) = solve_quadratic(a, b, c)?;
+        let (mut t0, mut t1) = solve_quadratic(b, c)?;
 
         if t0 > t1 { std::mem::swap(&mut t0, &mut t1); }
 
@@ -78,4 +77,6 @@ impl Surface for Sphere {
 
         (*self.texture)(x, y)
     }
+
+    fn bound(&self) -> Bound { Bound::bypass() }
 }

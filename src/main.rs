@@ -55,7 +55,7 @@ fn main() -> std::io::Result<()> {
     let camera = Camera::new(Point3::new(0.0,0.0,0.0), Vector3::new(0.0,0.0,1.0), 1.0, 16.0 / 9.0, 2.0, 480);
 
     let scene = vec![
-        Object::new(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 3.0), Point3::new(0.0, 1.0, 3.0), Point3::new(1.0, -1.0, 3.0), |t, u, v| Color::new(t, u, v)))
+        Object::new_boundless(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 2.0), Point3::new(0.0, 1.0, 2.0), Point3::new(1.0, -1.0, 2.0), |t, u, v| Color::new(t, u, v)))
     ];
 
     render(&camera, &scene, "out.ppm")

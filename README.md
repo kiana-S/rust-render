@@ -18,14 +18,14 @@ This list may be changed or extended in the future.
   - [x] Plane struct
   - [x] Plane intersection test
   - [x] Color mapping on planes
-- [ ] Triangle objects
+- [x] Triangle objects
   - [x] Triangle struct
   - [x] Triangle intersection test
   - [x] Triangle normal generation
   - [x] Color mapping on triangles
   - [x] Triangle mesh struct
   - [x] Triangle mesh intersection test
-- [ ] Bounding boxes
+- [x] Bounding spheres
 - [ ] Direct lighting
   - [ ] Point light sources
     - [ ] Point source struct

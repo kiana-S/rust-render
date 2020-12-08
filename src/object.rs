@@ -2,6 +2,7 @@
 mod sphere; pub use sphere::*;
 mod plane; pub use plane::*;
 mod triangle; pub use triangle::*;
+mod bound; pub use bound::*;
 
 use na::*;
 
@@ -22,18 +23,49 @@ pub trait Surface {
     // Takes in a point (assumed to be on the object's surface)
     // and returns the color information on that point.
     fn getcolor(&self, point: Point3<f32>) -> Color;
+
+    // Creates a bounding sphere around the object.
+    fn bound(&self) -> Bound;
 }
 
 pub struct Object {
-    pub surface: Box<dyn Surface>
+    pub surface: Box<dyn Surface>,
+    bound: Bound
 }
 
+#[allow(dead_code)]
 impl Object {
-    pub fn new(surface: impl 'static + Surface) -> Self {
-        Object { surface: Box::new(surface) }
+    // Creates a new object with a custom bounding sphere.
+    pub fn new_(surface: impl 'static + Surface, center: Point3<f32>, radius: f32) -> Self {
+        Object {
+            surface: Box::new(surface),
+            bound: Bound { center: center, radius: radius, bypass: false }
+        }
     }
 
-    pub fn intersect(&self, ray: Ray) -> Option<f32> { self.surface.intersect(ray) }
+    // Creates a new object with no bounding sphere.
+    pub fn new_boundless(surface: impl 'static + Surface) -> Self {
+        Object {
+            surface: Box::new(surface),
+            bound: Bound::bypass()
+        }
+    }
+
+    // Creates a new object with the default bounding sphere.
+    pub fn new(surface: impl 'static + Surface) -> Self {
+        let bound = surface.bound();
+        Object {
+            surface: Box::new(surface),
+            bound: bound
+        }
+    }
+
+
+    pub fn intersect(&self, ray: Ray) -> Option<f32> {
+        if self.bound.is_intersected(ray) {
+            self.surface.intersect(ray)
+        } else { None }
+    }
     pub fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> { self.surface.normal(point) }
     pub fn getcolor(&self, point: Point3<f32>) -> Color { self.surface.getcolor(point) }
 }
