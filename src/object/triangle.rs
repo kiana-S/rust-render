@@ -205,7 +205,6 @@ impl Surface for TriangleMesh {
         }
 
         fn smallest_sphere(points: Vec<&Point3<f32>>, boundary: Vec<&Point3<f32>>) -> (Point3<f32>, f32) {
-            println!("{:?}\n{:?}\n", points, boundary);
             if points.len() == 0 || boundary.len() == 4 {
                 match boundary.len() {
                     0 => (Point3::new(0.0, 0.0, 0.0), 0.0),

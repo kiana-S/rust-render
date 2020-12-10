@@ -70,7 +70,11 @@ impl Object {
     pub fn getcolor(&self, point: Point3<f32>) -> Color { self.surface.getcolor(point) }
 }
 
-pub type Scene = Vec<Object>;
+pub struct Scene {
+    pub objects: Vec<Object>,
+
+    pub background: Color
+}
 
 #[cfg(test)]
 mod tests {
