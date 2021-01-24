@@ -13,7 +13,7 @@ pub struct Triangle {
     pub v2: usize,
     pub v3: usize,
 
-    normal: Unit<Vector3<f32>>, // Precalculated normal vector.
+    normal: Unit3f, // Precalculated normal vector.
     area: f32, // Precalculated area for barycentric calculations.
 
     texture: Box<dyn Fn(f32, f32, f32) -> Color> // Texture map.
@@ -21,28 +21,28 @@ pub struct Triangle {
 }
 
 pub struct TriangleMesh {
-    pub vertices: Vec<Point3<f32>>,
+    pub vertices: Vec<Point3f>,
     pub tris: Vec<Triangle>
 }
 
-fn tri_area(a: &Point3<f32>, b: &Point3<f32>, c: &Point3<f32>) -> f32 {
+fn tri_area(a: &Point3f, b: &Point3f, c: &Point3f) -> f32 {
     let prlg_area: f32 = (b - a).cross(&(c - a)).norm();
     prlg_area / 2.0
 }
 
 impl Triangle {
-    fn vertex1<'a>(&self, vertices: &'a Vec<Point3<f32>>) -> &'a Point3<f32> { &vertices[self.v1] }
-    fn vertex2<'a>(&self, vertices: &'a Vec<Point3<f32>>) -> &'a Point3<f32> { &vertices[self.v2] }
-    fn vertex3<'a>(&self, vertices: &'a Vec<Point3<f32>>) -> &'a Point3<f32> { &vertices[self.v3] }
+    fn vertex1<'a>(&self, vertices: &'a Vec<Point3f>) -> &'a Point3f { &vertices[self.v1] }
+    fn vertex2<'a>(&self, vertices: &'a Vec<Point3f>) -> &'a Point3f { &vertices[self.v2] }
+    fn vertex3<'a>(&self, vertices: &'a Vec<Point3f>) -> &'a Point3f { &vertices[self.v3] }
 
     // Conversion of barycentric coordinates to
     // a point on the triangle.
-    fn from_bary(&self, vertices: &Vec<Point3<f32>>, t: f32, u: f32, v: f32) -> Point3<f32> {
+    fn from_bary(&self, vertices: &Vec<Point3f>, t: f32, u: f32, v: f32) -> Point3f {
         Point::from(t * self.vertex1(vertices).coords + u * self.vertex2(vertices).coords + v * self.vertex3(vertices).coords)
     }
 
     // Conversion of a point to barycentric coordinates.
-    fn to_bary(&self, vertices: &Vec<Point3<f32>>, point: Point3<f32>) -> (f32, f32, f32) {
+    fn to_bary(&self, vertices: &Vec<Point3f>, point: Point3f) -> (f32, f32, f32) {
         let t = tri_area(self.vertex2(vertices), self.vertex3(vertices), &point) / self.area;
         let u = tri_area(self.vertex1(vertices), self.vertex3(vertices), &point) / self.area;
         let v = tri_area(self.vertex1(vertices), self.vertex2(vertices), &point) / self.area;
@@ -50,7 +50,7 @@ impl Triangle {
         (t, u, v)
     }
 
-    fn intersect_(&self, vertices: &Vec<Point3<f32>>, ray: Ray) -> Option<(f32, f32, f32)> {
+    fn intersect_(&self, vertices: &Vec<Point3f>, ray: Ray) -> Option<(f32, f32, f32)> {
         let vect2_1 = self.vertex2(vertices) - self.vertex1(vertices);
         let vect3_1 = self.vertex3(vertices) - self.vertex1(vertices);
 
@@ -74,11 +74,11 @@ impl Triangle {
         Some((t, u, v))
     }
 
-    fn intersect(&self, vertices: &Vec<Point3<f32>>, ray: Ray) -> Option<f32> {
+    fn intersect(&self, vertices: &Vec<Point3f>, ray: Ray) -> Option<f32> {
         self.intersect_(vertices, ray).map(|(t, u, v)| distance(&ray.origin, &self.from_bary(vertices, t, u, v)))
     }
 
-    fn getcolor(&self, vertices: &Vec<Point3<f32>>, point: Point3<f32>) -> Color {
+    fn getcolor(&self, vertices: &Vec<Point3f>, point: Point3f) -> Color {
         let (t, u, v) = self.to_bary(vertices, point);
         (*self.texture)(t, u, v)
     }
@@ -86,7 +86,7 @@ impl Triangle {
 
 #[allow(dead_code)]
 impl TriangleMesh {
-    pub fn new(vertices: Vec<Point3<f32>>, tris: Vec<(usize, usize, usize, Box<dyn Fn(f32, f32, f32) -> Color>)>) -> Self {
+    pub fn new(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize, Box<dyn Fn(f32, f32, f32) -> Color>)>) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3, f)| Triangle {
                                 v1: v1,
@@ -102,7 +102,7 @@ impl TriangleMesh {
         }
     }
 
-    pub fn new_solid(vertices: Vec<Point3<f32>>, tris: Vec<(usize, usize, usize)>, color: Color) -> Self {
+    pub fn new_solid(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize)>, color: Color) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3)| Triangle {
                                 v1: v1,
@@ -118,15 +118,15 @@ impl TriangleMesh {
         }
     }
 
-    pub fn singleton<F: 'static>(vertex1: Point3<f32>, vertex2: Point3<f32>, vertex3: Point3<f32>, texture: F) -> Self
+    pub fn singleton<F: 'static>(vertex1: Point3f, vertex2: Point3f, vertex3: Point3f, texture: F) -> Self
         where F: Fn(f32, f32, f32) -> Color
         { TriangleMesh::new(vec![vertex1, vertex2, vertex3], vec![(0, 1, 2, Box::new(texture))]) }
 
-    pub fn singleton_solid(vertex1: Point3<f32>, vertex2: Point3<f32>, vertex3: Point3<f32>, color: Color) -> Self
+    pub fn singleton_solid(vertex1: Point3f, vertex2: Point3f, vertex3: Point3f, color: Color) -> Self
         { TriangleMesh::singleton(vertex1, vertex2, vertex3, move |_, _, _| color) }
 
 
-    fn closest_tri(&self, point: Point3<f32>) -> &Triangle {
+    fn closest_tri(&self, point: Point3f) -> &Triangle {
         self.tris.iter()
             .map(move |tri| {
 
@@ -155,17 +155,17 @@ impl Surface for TriangleMesh {
              .min_by(|a, b| a.partial_cmp(&b).unwrap_or(Ordering::Equal))
     }
 
-    fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> {
+    fn normal(&self, point: Point3f) -> Unit3f {
         self.closest_tri(point).normal
     }
 
-    fn getcolor(&self, point: Point3<f32>) -> Color {
+    fn getcolor(&self, point: Point3f) -> Color {
         self.closest_tri(point).getcolor(&self.vertices, point)
     }
 
     // Uses Welzl's algorithm to solve the bounding sphere problem
     fn bound(&self) -> Bound {
-        fn triangle_sphere(point1: &Point3<f32>, point2: &Point3<f32>, point3: &Point3<f32>) -> (Point3<f32>, f32) {
+        fn triangle_sphere(point1: &Point3f, point2: &Point3f, point3: &Point3f) -> (Point3f, f32) {
             let a = point3 - point1;
             let b = point2 - point1;
 
@@ -179,7 +179,7 @@ impl Surface for TriangleMesh {
             (point1 + to_center, radius)
         }
 
-        fn tetrahedron_sphere(point1: &Point3<f32>, point2: &Point3<f32>, point3: &Point3<f32>, point4: &Point3<f32>) -> (Point3<f32>, f32) {
+        fn tetrahedron_sphere(point1: &Point3f, point2: &Point3f, point3: &Point3f, point4: &Point3f) -> (Point3f, f32) {
             let matrix = Matrix4::from_rows(&[point1.to_homogeneous().transpose(),
                                             point2.to_homogeneous().transpose(),
                                             point3.to_homogeneous().transpose(),
@@ -204,7 +204,7 @@ impl Surface for TriangleMesh {
             (center, radius)
         }
 
-        fn smallest_sphere(points: Vec<&Point3<f32>>, boundary: Vec<&Point3<f32>>) -> (Point3<f32>, f32) {
+        fn smallest_sphere(points: Vec<&Point3f>, boundary: Vec<&Point3f>) -> (Point3f, f32) {
             if points.len() == 0 || boundary.len() == 4 {
                 match boundary.len() {
                     0 => (Point3::new(0.0, 0.0, 0.0), 0.0),
@@ -233,7 +233,7 @@ impl Surface for TriangleMesh {
         use rand::thread_rng;
         use rand::seq::SliceRandom;
 
-        let mut points: Vec<&Point3<f32>> = self.vertices.iter().collect();
+        let mut points: Vec<&Point3f> = self.vertices.iter().collect();
         points.shuffle(&mut thread_rng());
 
         let (center, radius) = smallest_sphere(points, Vec::new());

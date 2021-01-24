@@ -7,19 +7,21 @@ use crate::types::*;
 use super::*;
 
 pub struct PointLight {
-    pub pos: Point3<f32>,
-    pub color: Color
+    pub pos: Point3f,
+    pub color: Color,
+    pub intensity: f32
 }
 
 impl PointLight {
-    pub fn new(pos: Point3<f32>, color: Color) -> PointLight {
+    pub fn new(pos: Point3f, color: Color, intensity: f32) -> PointLight {
         PointLight {
             pos: pos,
-            color: color
+            color: color,
+            intensity: intensity
         }
     }
 
-    fn check_point(&self, point: Point3<f32>, objects: &Vec<Object>) -> bool {
+    fn check_point(&self, point: Point3f, objects: &Vec<Object>) -> bool {
         let max_d = distance(&self.pos, &point);
         objects.iter()
                .filter_map(|obj| obj.intersect(Ray::from_points(self.pos, point)))
@@ -28,9 +30,13 @@ impl PointLight {
 }
 
 impl Light for PointLight {
-    fn illuminate(&self, point: Point3<f32>, objects: &Vec<Object>) -> Option<Color> {
+    fn illuminate(&self, point: Point3f, objects: &Vec<Object>) -> Option<Color> {
         if self.check_point(point, objects) {
             Some(self.color)
         } else { None }
+    }
+
+    fn direction(&self, point: Point3f) -> Unit3f {
+        Unit::new_normalize(self.pos - point)
     }
 }

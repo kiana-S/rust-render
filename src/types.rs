@@ -5,23 +5,27 @@ use std::ops::{Add, Mul};
 use na::*;
 use na::geometry::Point3;
 
+pub type Point3f = Point3<f32>;
+pub type Vector3f = Vector3<f32>;
+pub type Unit3f = Unit<Vector3<f32>>;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Ray {
-    pub origin: Point3<f32>,
-    pub direction: Unit<Vector3<f32>>
+    pub origin: Point3f,
+    pub direction: Unit3f
 }
 
 impl Ray {
-    pub fn from_parts(origin: Point3<f32>, direction: Unit<Vector3<f32>>) -> Self {
+    pub fn from_parts(origin: Point3f, direction: Unit3f) -> Self {
         Ray {
             origin: origin,
             direction: direction
         }
     }
-    pub fn new(origin: Point3<f32>, direction: Vector3<f32>) -> Self { Ray::from_parts(origin, Unit::new_normalize(direction)) }
-    pub fn from_points(origin: Point3<f32>, points_to: Point3<f32>) -> Self { Ray::new(origin, points_to - origin) }
+    pub fn new(origin: Point3f, direction: Vector3f) -> Self { Ray::from_parts(origin, Unit::new_normalize(direction)) }
+    pub fn from_points(origin: Point3f, points_to: Point3f) -> Self { Ray::new(origin, points_to - origin) }
 
-    pub fn project(&self, t: f32) -> Point3<f32> { self.origin + t * self.direction.into_inner() }
+    pub fn project(&self, t: f32) -> Point3f { self.origin + t * self.direction.into_inner() }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

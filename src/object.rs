@@ -19,11 +19,11 @@ pub trait Surface {
 
     // Takes in a point (assumed to be on the object's surface)
     // and returns the normal vector off of that point.
-    fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>>;
+    fn normal(&self, point: Point3f) -> Unit3f;
 
     // Takes in a point (assumed to be on the object's surface)
     // and returns the color information on that point.
-    fn getcolor(&self, point: Point3<f32>) -> Color;
+    fn getcolor(&self, point: Point3f) -> Color;
 
     // Creates a bounding sphere around the object.
     fn bound(&self) -> Bound;
@@ -50,14 +50,17 @@ impl Object {
             self.surface.intersect(ray)
         } else { None }
     }
-    pub fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> { self.surface.normal(point) }
-    pub fn getcolor(&self, point: Point3<f32>) -> Color { self.surface.getcolor(point) }
+    pub fn normal(&self, point: Point3f) -> Unit3f { self.surface.normal(point) }
+    pub fn getcolor(&self, point: Point3f) -> Color { self.surface.getcolor(point) }
 }
 
 pub trait Light {
     // Determine if the light is able to illuminate the point.
     // If so, return the color of the light.
-    fn illuminate(&self, point: Point3<f32>, objects: &Vec<Object>) -> Option<Color>;
+    fn illuminate(&self, point: Point3f, objects: &Vec<Object>) -> Option<Color>;
+
+    // Return the direction from the point to the light source.
+    fn direction(&self, point: Point3f) -> Unit3f;
 }
 
 pub struct Scene {

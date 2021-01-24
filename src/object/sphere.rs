@@ -9,7 +9,7 @@ use crate::types::*;
 use super::{Surface, bound::*};
 
 pub struct Sphere {
-    pub center: Point3<f32>, // Center point of the sphere.
+    pub center: Point3f, // Center point of the sphere.
     pub radius: f32,         // Radius of the sphere.
 
     texture: Box<dyn Fn(f32, f32) -> Color> // Texture map.
@@ -62,11 +62,11 @@ impl Surface for Sphere {
         else { None }
     }
 
-    fn normal(&self, point: Point3<f32>) -> Unit<Vector3<f32>> {
+    fn normal(&self, point: Point3f) -> Unit3f {
         Unit::new_normalize(point - self.center)
     }
 
-    fn getcolor(&self, point: Point3<f32>) -> Color {
+    fn getcolor(&self, point: Point3f) -> Color {
         let normal = self.normal(point);
 
         // In this particular case, the normal is simular to a point on a unit sphere

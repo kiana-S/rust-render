@@ -7,11 +7,11 @@ use crate::types::*;
 use super::{Surface, bound::*};
 
 pub struct Plane {
-    pub center: Point3<f32>,        // Plane origin (used for texture mapping).
-    pub normal: Unit<Vector3<f32>>, // Precomputed plane normal.
+    pub center: Point3f,        // Plane origin (used for texture mapping).
+    pub normal: Unit3f, // Precomputed plane normal.
 
-    x_axis: Vector3<f32>, // Plane x-axis (The 3D direction that corresponds to the x-direction on the plane).
-    y_axis: Vector3<f32>, // Plane y-axis (The 3D direction that corresponds to the y-direction on the plane).
+    x_axis: Vector3f, // Plane x-axis (The 3D direction that corresponds to the x-direction on the plane).
+    y_axis: Vector3f, // Plane y-axis (The 3D direction that corresponds to the y-direction on the plane).
 
     texture: Box<dyn Fn(f32, f32) -> Color> // Texture map.
                                             // Input coordinates are defined in terms of the axes above.
@@ -20,7 +20,7 @@ pub struct Plane {
 #[allow(dead_code)]
 impl Plane {
     // Creates a new plane.
-    pub fn new<F: 'static>(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, texture: F) -> Self
+    pub fn new<F: 'static>(center: Point3f, x_axis: Vector3f, y_axis: Vector3f, texture: F) -> Self
         where F: Fn(f32, f32) -> Color
     {
         Plane {
@@ -33,7 +33,7 @@ impl Plane {
     }
 
     // Creates a new plane with the normal flipped.
-    pub fn new_flip<F: 'static>(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, texture: F) -> Self
+    pub fn new_flip<F: 'static>(center: Point3f, x_axis: Vector3f, y_axis: Vector3f, texture: F) -> Self
         where F: Fn(f32, f32) -> Color
     {
         Plane {
@@ -46,11 +46,11 @@ impl Plane {
     }
 
     // Creates a new plane of a solid color.
-    pub fn new_solid(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, color: Color) -> Self
+    pub fn new_solid(center: Point3f, x_axis: Vector3f, y_axis: Vector3f, color: Color) -> Self
         { Plane::new(center, x_axis, y_axis, move |_, _| color) }
 
     // Creates a new flipped plane of a solid color.
-    pub fn new_solid_flip(center: Point3<f32>, x_axis: Vector3<f32>, y_axis: Vector3<f32>, color: Color) -> Self
+    pub fn new_solid_flip(center: Point3f, x_axis: Vector3f, y_axis: Vector3f, color: Color) -> Self
         { Plane::new_flip(center, x_axis, y_axis, move |_, _| color) }
 
 
@@ -75,9 +75,9 @@ impl Surface for Plane {
         else { None }
     }
 
-    fn normal(&self, _point: Point3<f32>) -> Unit<Vector3<f32>> { self.normal }
+    fn normal(&self, _point: Point3f) -> Unit3f { self.normal }
 
-    fn getcolor(&self, point: Point3<f32>) -> Color {
+    fn getcolor(&self, point: Point3f) -> Color {
         let rel_pos = point - self.center;
         let proj_point3 = rel_pos - (*self.normal * self.normal.dot(&rel_pos));
 
