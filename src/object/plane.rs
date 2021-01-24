@@ -67,7 +67,7 @@ impl Surface for Plane {
     fn intersect(&self, ray: Ray) -> Option<f32> {
 
         let d = self.normal.dot(&ray.direction);
-        if d < 1e-5 { return None; }
+        if d < 1e-3 { return None; }
 
         let t = (self.center - ray.origin).dot(&*self.normal) / d;
 

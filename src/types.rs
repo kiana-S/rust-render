@@ -1,4 +1,7 @@
 extern crate nalgebra as na;
+
+use std::ops::{Add, Mul};
+
 use na::*;
 use na::geometry::Point3;
 
@@ -16,7 +19,7 @@ impl Ray {
         }
     }
     pub fn new(origin: Point3<f32>, direction: Vector3<f32>) -> Self { Ray::from_parts(origin, Unit::new_normalize(direction)) }
-    pub fn from_points(a: Point3<f32>, b: Point3<f32>) -> Self { Ray::new(a, b - a) }
+    pub fn from_points(origin: Point3<f32>, points_to: Point3<f32>) -> Self { Ray::new(origin, points_to - origin) }
 
     pub fn project(&self, t: f32) -> Point3<f32> { self.origin + t * self.direction.into_inner() }
 }
@@ -34,9 +37,9 @@ pub struct Color {
 impl Color {
     pub fn new(red: f32, green: f32, blue: f32) -> Self {
         Color {
-            red:   clamp(red,   0.0, 1.0),
-            green: clamp(green, 0.0, 1.0),
-            blue:  clamp(blue,  0.0, 1.0),
+            red:   if red   < 0.0 { 0.0 } else { red   },
+            green: if green < 0.0 { 0.0 } else { green },
+            blue:  if blue  < 0.0 { 0.0 } else { blue  },
 
             _private: ()
         }
@@ -53,4 +56,40 @@ impl Color {
 
     pub fn black() -> Self { Color::gray(0.0) }
     pub fn white() -> Self { Color::gray(1.0) }
+}
+
+impl Add for Color {
+    type Output = Color;
+    fn add(self, rhs: Color) -> Color {
+        Color {
+            red:   self.red   + rhs.red,
+            green: self.green + rhs.green,
+            blue:  self.blue  + rhs.blue,
+            _private: ()
+        }
+    }
+}
+
+impl Mul for Color {
+    type Output = Color;
+    fn mul(self, rhs: Color) -> Color {
+        Color {
+            red:   self.red   * rhs.red,
+            green: self.green * rhs.green,
+            blue:  self.blue  * rhs.blue,
+            _private: ()
+        }
+    }
+}
+
+impl Mul<f32> for Color {
+    type Output = Color;
+    fn mul(self, rhs: f32) -> Color {
+        Color {
+            red:   self.red   * rhs,
+            green: self.green * rhs,
+            blue:  self.blue  * rhs,
+            _private: ()
+        }
+    }
 }

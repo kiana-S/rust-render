@@ -3,6 +3,7 @@ mod sphere; pub use sphere::*;
 mod plane; pub use plane::*;
 mod triangle; pub use triangle::*;
 mod bound; pub use bound::*;
+mod pointlight; pub use pointlight::*;
 
 use na::*;
 
@@ -33,24 +34,7 @@ pub struct Object {
     bound: Bound
 }
 
-#[allow(dead_code)]
 impl Object {
-    // Creates a new object with a custom bounding sphere.
-    pub fn new_(surface: impl 'static + Surface, center: Point3<f32>, radius: f32) -> Self {
-        Object {
-            surface: Box::new(surface),
-            bound: Bound { center: center, radius: radius, bypass: false }
-        }
-    }
-
-    // Creates a new object with no bounding sphere.
-    pub fn new_boundless(surface: impl 'static + Surface) -> Self {
-        Object {
-            surface: Box::new(surface),
-            bound: Bound::bypass()
-        }
-    }
-
     // Creates a new object with the default bounding sphere.
     pub fn new(surface: impl 'static + Surface) -> Self {
         let bound = surface.bound();
@@ -70,9 +54,15 @@ impl Object {
     pub fn getcolor(&self, point: Point3<f32>) -> Color { self.surface.getcolor(point) }
 }
 
+pub trait Light {
+    // Determine if the light is able to illuminate the point.
+    // If so, return the color of the light.
+    fn illuminate(&self, point: Point3<f32>, objects: &Vec<Object>) -> Option<Color>;
+}
+
 pub struct Scene {
     pub objects: Vec<Object>,
-
+    pub lights: Vec<Box<dyn Light>>,
     pub background: Color
 }
 

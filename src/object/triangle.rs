@@ -57,7 +57,7 @@ impl Triangle {
         let p_vect = ray.direction.cross(&vect3_1);
         let det = p_vect.dot(&vect2_1);
 
-        if det.abs() < 1e-5 { return None; }
+        if det.abs() < 1e-3 { return None; }
 
         let t_vect = ray.origin - self.vertex1(vertices);
         let u = t_vect.dot(&p_vect) / det;
@@ -238,7 +238,7 @@ impl Surface for TriangleMesh {
 
         let (center, radius) = smallest_sphere(points, Vec::new());
 
-        Bound { center: center, radius: radius + 0.01, bypass: false }
+        Bound { center: center, radius: radius + 1e-3, bypass: false }
     }
 }
 

@@ -1,6 +1,5 @@
 extern crate nalgebra as na;
 
-use std::cmp::Ordering;
 use std::fs::File;
 use std::io::Write;
 
@@ -10,22 +9,7 @@ use na::geometry::Point3;
 mod camera; use camera::*;
 mod types; use types::*;
 mod object; use object::*;
-
-fn trace(ray: Ray, objects: &Vec<Object>) -> Option<(&Object, f32)> {
-    objects.iter()
-           .filter_map(|obj| obj.intersect(ray)
-                                .map(|x| (obj, x)))
-           .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(Ordering::Equal))
-}
-
-fn cast_ray(ray: Ray, scene: &Scene) -> Color {
-    if let Some((obj, dist)) = trace(ray, &scene.objects) {
-        let point = ray.project(dist);
-
-        obj.getcolor(point)
-    }
-    else { scene.background }
-}
+mod render; use render::*;
 
 fn render(camera: &Camera, scene: &Scene, filename: &str) -> std::io::Result<()> {
     let width  = camera.image_size.x;
@@ -58,6 +42,7 @@ fn main() -> std::io::Result<()> {
         objects: vec![
             Object::new(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 2.0), Point3::new(0.0, 1.0, 2.0), Point3::new(1.0, -1.0, 2.0), |t, u, v| Color::new(t, u, v)))
         ],
+        lights: Vec::new(),
         background: Color::black()
     };
 

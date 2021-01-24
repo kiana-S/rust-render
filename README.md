@@ -28,11 +28,11 @@ This list may be changed or extended in the future.
 - [x] Bounding spheres
 - [ ] Direct lighting
   - [ ] Point light sources
-    - [ ] Point source struct
-    - [ ] Point source illuminance test
+    - [x] Point source struct
+    - [x] Point source illuminance test
     - [ ] Hard shadows
     - [ ] Soft shadows
-  - [ ] Light-emitting surfaces
+  - [ ] ~~Light-emitting surfaces~~
 - [ ] Indirect lighting
   - [ ] Reflection
     - [ ] Perfectly reflective objects

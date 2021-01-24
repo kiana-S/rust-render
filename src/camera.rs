@@ -1,5 +1,5 @@
-
 extern crate nalgebra as na;
+
 use na::*;
 use na::geometry::{Point2, Point3};
 

@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::distance;
+// use na::distance;
 use na::geometry::Point3;
 
 use crate::types::Ray;
@@ -24,7 +24,7 @@ impl Bound {
         l.norm_squared() >= self.radius * self.radius
     }
 
-    pub fn contains(&self, point: &Point3<f32>) -> bool { distance(&self.center, point) < self.radius }
+    // pub fn contains(&self, point: &Point3<f32>) -> bool { distance(&self.center, point) < self.radius }
 
     pub fn bypass() -> Self { Bound { center: Point3::origin(), radius: 0.0, bypass: true } }
 }
