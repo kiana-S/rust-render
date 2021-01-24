@@ -40,7 +40,7 @@ fn main() -> std::io::Result<()> {
 
     let scene = Scene {
         objects: vec![
-            Object::new(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 2.0), Point3::new(0.0, 1.0, 2.0), Point3::new(1.0, -1.0, 2.0), |t, u, v| Color::new(t, u, v)))
+            Object::new(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 2.0), Point3::new(0.0, 1.0, 2.0), Point3::new(1.0, -1.0, 2.0), |t, u, v| Texture::new(t, u, v, 0.18)))
         ],
         lights: Vec::new(),
         background: Color::black()

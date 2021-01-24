@@ -97,3 +97,19 @@ impl Mul<f32> for Color {
         }
     }
 }
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Texture {
+    pub color: Color,
+    pub albedo: f32
+}
+
+#[allow(dead_code)]
+impl Texture {
+    pub fn new(red: f32, green: f32, blue: f32, albedo: f32) -> Self {
+        Texture {
+            color: Color::new(red, green, blue),
+            albedo: albedo
+        }
+    }
+}

@@ -18,8 +18,8 @@ fn trace(ray: Ray, objects: &Vec<Object>) -> Option<(&Object, f32)> {
 pub fn cast_ray(ray: Ray, scene: &Scene) -> Color {
     if let Some((obj, dist)) = trace(ray, &scene.objects) {
         let point = ray.project(dist);
-        let surface_color = obj.getcolor(point);
-        surface_color
+        let surface_texture = obj.gettexture(point);
+        surface_texture.color
     }
     else { scene.background }
 }

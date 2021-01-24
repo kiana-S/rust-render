@@ -12,15 +12,15 @@ pub struct Sphere {
     pub center: Point3f, // Center point of the sphere.
     pub radius: f32,         // Radius of the sphere.
 
-    texture: Box<dyn Fn(f32, f32) -> Color> // Texture map.
-                                            // Uses spherical coordinates (normalized from 0-1) as input.
+    texture: Box<dyn Fn(f32, f32) -> Texture> // Texture map.
+                                              // Uses spherical coordinates (normalized from 0-1) as input.
 }
 
 #[allow(dead_code)]
 impl Sphere {
     // Creates a new sphere.
     pub fn new<F: 'static>(x: f32, y: f32, z: f32, radius: f32, texture: F) -> Self
-        where F: Fn(f32, f32) -> Color
+        where F: Fn(f32, f32) -> Texture
     {
         Sphere {
             center: Point3::new(x, y, z),
@@ -30,8 +30,8 @@ impl Sphere {
     }
 
     // Creates a new sphere of a solid color.
-    pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, color: Color) -> Self
-        { Sphere::new(x, y, z, radius, move |_, _| color) }
+    pub fn new_solid(x: f32, y: f32, z: f32, radius: f32, texture: Texture) -> Self
+        { Sphere::new(x, y, z, radius, move |_, _| texture) }
 }
 
 impl Surface for Sphere {
@@ -66,7 +66,7 @@ impl Surface for Sphere {
         Unit::new_normalize(point - self.center)
     }
 
-    fn getcolor(&self, point: Point3f) -> Color {
+    fn gettexture(&self, point: Point3f) -> Texture {
         let normal = self.normal(point);
 
         // In this particular case, the normal is simular to a point on a unit sphere

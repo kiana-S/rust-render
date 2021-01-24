@@ -22,8 +22,8 @@ pub trait Surface {
     fn normal(&self, point: Point3f) -> Unit3f;
 
     // Takes in a point (assumed to be on the object's surface)
-    // and returns the color information on that point.
-    fn getcolor(&self, point: Point3f) -> Color;
+    // and returns the texture information on that point.
+    fn gettexture(&self, point: Point3f) -> Texture;
 
     // Creates a bounding sphere around the object.
     fn bound(&self) -> Bound;
@@ -51,12 +51,12 @@ impl Object {
         } else { None }
     }
     pub fn normal(&self, point: Point3f) -> Unit3f { self.surface.normal(point) }
-    pub fn getcolor(&self, point: Point3f) -> Color { self.surface.getcolor(point) }
+    pub fn gettexture(&self, point: Point3f) -> Texture { self.surface.gettexture(point) }
 }
 
 pub trait Light {
     // Determine if the light is able to illuminate the point.
-    // If so, return the color of the light.
+    // If so, return the light amount recieved.
     fn illuminate(&self, point: Point3f, objects: &Vec<Object>) -> Option<Color>;
 
     // Return the direction from the point to the light source.

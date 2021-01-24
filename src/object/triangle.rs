@@ -16,8 +16,8 @@ pub struct Triangle {
     normal: Unit3f, // Precalculated normal vector.
     area: f32, // Precalculated area for barycentric calculations.
 
-    texture: Box<dyn Fn(f32, f32, f32) -> Color> // Texture map.
-                                                 // Uses barycentric coordinates as input.
+    texture: Box<dyn Fn(f32, f32, f32) -> Texture> // Texture map.
+                                                   // Uses barycentric coordinates as input.
 }
 
 pub struct TriangleMesh {
@@ -78,7 +78,7 @@ impl Triangle {
         self.intersect_(vertices, ray).map(|(t, u, v)| distance(&ray.origin, &self.from_bary(vertices, t, u, v)))
     }
 
-    fn getcolor(&self, vertices: &Vec<Point3f>, point: Point3f) -> Color {
+    fn gettexture(&self, vertices: &Vec<Point3f>, point: Point3f) -> Texture {
         let (t, u, v) = self.to_bary(vertices, point);
         (*self.texture)(t, u, v)
     }
@@ -86,7 +86,7 @@ impl Triangle {
 
 #[allow(dead_code)]
 impl TriangleMesh {
-    pub fn new(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize, Box<dyn Fn(f32, f32, f32) -> Color>)>) -> Self {
+    pub fn new(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize, Box<dyn Fn(f32, f32, f32) -> Texture>)>) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3, f)| Triangle {
                                 v1: v1,
@@ -102,7 +102,7 @@ impl TriangleMesh {
         }
     }
 
-    pub fn new_solid(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize)>, color: Color) -> Self {
+    pub fn new_solid(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize)>, texture: Texture) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3)| Triangle {
                                 v1: v1,
@@ -110,7 +110,7 @@ impl TriangleMesh {
                                 v3: v3,
                                 normal: Unit::new_normalize((&vertices[v2] - &vertices[v1]).cross(&(&vertices[v3] - &vertices[v1]))),
                                 area: tri_area(&vertices[v1], &vertices[v2], &vertices[v3]),
-                                texture: Box::new(move |_, _, _| color)
+                                texture: Box::new(move |_, _, _| texture)
                             }).collect();
         TriangleMesh {
             vertices: vertices,
@@ -119,11 +119,11 @@ impl TriangleMesh {
     }
 
     pub fn singleton<F: 'static>(vertex1: Point3f, vertex2: Point3f, vertex3: Point3f, texture: F) -> Self
-        where F: Fn(f32, f32, f32) -> Color
+        where F: Fn(f32, f32, f32) -> Texture
         { TriangleMesh::new(vec![vertex1, vertex2, vertex3], vec![(0, 1, 2, Box::new(texture))]) }
 
-    pub fn singleton_solid(vertex1: Point3f, vertex2: Point3f, vertex3: Point3f, color: Color) -> Self
-        { TriangleMesh::singleton(vertex1, vertex2, vertex3, move |_, _, _| color) }
+    pub fn singleton_solid(vertex1: Point3f, vertex2: Point3f, vertex3: Point3f, texture: Texture) -> Self
+        { TriangleMesh::singleton(vertex1, vertex2, vertex3, move |_, _, _| texture) }
 
 
     fn closest_tri(&self, point: Point3f) -> &Triangle {
@@ -159,8 +159,8 @@ impl Surface for TriangleMesh {
         self.closest_tri(point).normal
     }
 
-    fn getcolor(&self, point: Point3f) -> Color {
-        self.closest_tri(point).getcolor(&self.vertices, point)
+    fn gettexture(&self, point: Point3f) -> Texture {
+        self.closest_tri(point).gettexture(&self.vertices, point)
     }
 
     // Uses Welzl's algorithm to solve the bounding sphere problem
