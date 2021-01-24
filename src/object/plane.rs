@@ -91,36 +91,3 @@ impl Surface for Plane {
     // bounding sphere could possibly contain one.
     fn bound(&self) -> Bound { Bound::bypass() }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn plane_new() {
-        let plane = Plane::xy(|_, _| Color::black());
-
-        assert_eq!(plane.center, Point3::new(0.0, 0.0, 0.0));
-        assert_eq!(plane.normal, Unit::new_unchecked(Vector3::z()));
-    }
-
-    #[test]
-    fn plane_intersect() {
-        const N: f32 = 5.0;
-        let plane = Plane::xz(|_, _| Color::black());
-
-        let ray = Ray::new(Point3::new(0.0, N, 0.0), Vector3::new(0.0, -1.0, 0.0));
-
-        assert_eq!(plane.intersect(ray), Some(N));
-    }
-
-    #[test]
-    fn plane_getcolor() {
-        const N: f32 = 5.0;
-        let plane = Plane::xz(|x, y| Color::new(x, y, 0.0));
-
-        let point = Point3::new(5.0, 7.0, 6.0);
-
-        assert_eq!(plane.getcolor(point), Color::new(5.0, 6.0, 0.0));
-    }
-}

@@ -30,7 +30,7 @@ This list may be changed or extended in the future.
   - [ ] Point light sources
     - [x] Point source struct
     - [x] Point source illuminance test
-    - [ ] Hard shadows
+    - [x] Hard shadows
     - [ ] Soft shadows
   - [ ] ~~Light-emitting surfaces~~
 - [ ] Indirect lighting

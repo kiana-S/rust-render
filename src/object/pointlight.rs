@@ -1,7 +1,6 @@
 extern crate nalgebra as na;
 
 use na::*;
-use na::geometry::Point3;
 
 use crate::types::*;
 use super::*;
@@ -12,6 +11,7 @@ pub struct PointLight {
     pub intensity: f32
 }
 
+#[allow(dead_code)]
 impl PointLight {
     pub fn new(pos: Point3f, color: Color, intensity: f32) -> PointLight {
         PointLight {
@@ -20,23 +20,35 @@ impl PointLight {
             intensity: intensity
         }
     }
-
-    fn check_point(&self, point: Point3f, objects: &Vec<Object>) -> bool {
-        let max_d = distance(&self.pos, &point);
-        objects.iter()
-               .filter_map(|obj| obj.intersect(Ray::from_points(self.pos, point)))
-               .all(|d| d > max_d)
-    }
 }
 
 impl Light for PointLight {
-    fn illuminate(&self, point: Point3f, objects: &Vec<Object>) -> Option<Color> {
-        if self.check_point(point, objects) {
-            Some(self.color)
-        } else { None }
+    fn check_shadow(&self, point: Point3f, objects: &Vec<Object>) -> bool {
+        let max_d = distance(&self.pos, &point);
+        objects.iter()
+               .filter_map(|obj| obj.intersect(Ray::from_points(self.pos, point)))
+               .all(|d| d - max_d > -1e-3 )
     }
+
+    fn getcolor(&self, _point: Point3f) -> Color { self.color }
+
+    fn intensity(&self, _point: Point3f) -> f32 { self.intensity }
 
     fn direction(&self, point: Point3f) -> Unit3f {
         Unit::new_normalize(self.pos - point)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pointlight_checkshadow() {
+        let light = PointLight::new(Point3::new(0.0, 1.0, 0.0), Color::white(), 1.0);
+        let block = Object::new(Sphere::new_solid(0.0, 0.5, 0.0, 0.1, Texture::new(0.0, 0.0, 0.0, 0.0)));
+
+        assert!(light.check_shadow(Point3::origin(), &Vec::new()));
+        assert!(!light.check_shadow(Point3::origin(), &vec![block]));
     }
 }

@@ -5,8 +5,6 @@ mod triangle; pub use triangle::*;
 mod bound; pub use bound::*;
 mod pointlight; pub use pointlight::*;
 
-use na::*;
-
 use crate::types::*;
 
 // A trait for types that can be in Objects.
@@ -56,8 +54,13 @@ impl Object {
 
 pub trait Light {
     // Determine if the light is able to illuminate the point.
-    // If so, return the light amount recieved.
-    fn illuminate(&self, point: Point3f, objects: &Vec<Object>) -> Option<Color>;
+    fn check_shadow(&self, point: Point3f, objects: &Vec<Object>) -> bool;
+
+    // Compute color on a point.
+    fn getcolor(&self, point: Point3f) -> Color;
+
+    // Compute intensity on a point.
+    fn intensity(&self, point: Point3f) -> f32;
 
     // Return the direction from the point to the light source.
     fn direction(&self, point: Point3f) -> Unit3f;
@@ -67,18 +70,4 @@ pub struct Scene {
     pub objects: Vec<Object>,
     pub lights: Vec<Box<dyn Light>>,
     pub background: Color
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn obj_getcolor() {
-        let sphere = Object::new(Sphere::new_solid(0.0, 0.0, 0.0, 1.0, Color::white()));
-
-        let point = Point3::new(1.0, 0.0, 0.0);
-
-        assert_eq!(sphere.getcolor(point), Color::white());
-    }
 }

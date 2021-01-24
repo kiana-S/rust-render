@@ -1,10 +1,10 @@
 extern crate nalgebra as na;
 
+use std::time::Instant;
 use std::fs::File;
 use std::io::Write;
 
 use na::*;
-use na::geometry::Point3;
 
 mod camera; use camera::*;
 mod types; use types::*;
@@ -36,15 +36,24 @@ fn render(camera: &Camera, scene: &Scene, filename: &str) -> std::io::Result<()>
 
 fn main() -> std::io::Result<()> {
 
-    let camera = Camera::new(Point3::new(0.0,0.0,0.0), Vector3::new(0.0,0.0,1.0), 1.0, 16.0 / 9.0, 2.0, 480);
+    let camera = Camera::new(Point3::new(0.0,0.0,2.5), Vector3::new(0.0,0.0,-1.0), 1.0, 16.0 / 9.0, 2.0, 720);
 
     let scene = Scene {
         objects: vec![
-            Object::new(TriangleMesh::singleton(Point3::new(-1.0, -1.0, 2.0), Point3::new(0.0, 1.0, 2.0), Point3::new(1.0, -1.0, 2.0), |t, u, v| Texture::new(t, u, v, 0.18)))
+            Object::new(Sphere::new(0.0, 0.0, 0.0, 1.0, |a, b| Texture::new(0.0, a, b, 1.0)))
         ],
-        lights: Vec::new(),
-        background: Color::black()
+        lights: vec![
+            Box::new(PointLight::new(Point3::new(1.0, 0.7, 1.5), Color::white(), 3.0)),
+            Box::new(PointLight::new(Point3::new(-1.0, -0.3, 0.4), Color::new(1.0, 0.0, 0.0), 4.0))
+        ],
+        background: Color::gray(0.5)
     };
 
-    render(&camera, &scene, "out.ppm")
+    let before = Instant::now();
+
+    render(&camera, &scene, "out.ppm")?;
+
+    println!("{}", before.elapsed().as_millis());
+
+    Ok(())
 }
