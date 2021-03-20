@@ -22,7 +22,7 @@ impl Light for PointLight {
     fn check_shadow(&self, point: Point3f, objects: &Vec<Object>) -> bool {
         let max_d = distance(&self.pos, &point);
         objects.iter()
-               .filter_map(|&obj| obj.intersect(Ray::from_points(self.pos, point)))
+               .filter_map(|obj| obj.intersect(Ray::from_points(self.pos, point)))
                .all(|d| d - max_d > -1e-3 )
     }
 
