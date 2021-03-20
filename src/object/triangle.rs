@@ -22,7 +22,7 @@ pub struct Triangle {
 
 pub struct TriangleMesh {
     pub vertices: Vec<Point3f>,
-    pub tris: Vec<Triangle>
+    pub triangles: Vec<Triangle>
 }
 
 fn tri_area(a: &Point3f, b: &Point3f, c: &Point3f) -> f32 {
@@ -78,7 +78,7 @@ impl Triangle {
         self.intersect_(vertices, ray).map(|(t, u, v)| distance(&ray.origin, &self.from_bary(vertices, t, u, v)))
     }
 
-    fn gettexture(&self, vertices: &Vec<Point3f>, point: Point3f) -> Texture {
+    fn get_texture(&self, vertices: &Vec<Point3f>, point: Point3f) -> Texture {
         let (t, u, v) = self.to_bary(vertices, point);
         (*self.texture)(t, u, v)
     }
@@ -89,32 +89,27 @@ impl TriangleMesh {
     pub fn new(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize, Box<dyn Fn(f32, f32, f32) -> Texture>)>) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3, f)| Triangle {
-                                v1: v1,
-                                v2: v2,
-                                v3: v3,
+                                v1, v2, v3,
                                 normal: Unit::new_normalize((&vertices[v2] - &vertices[v1]).cross(&(&vertices[v3] - &vertices[v1]))),
                                 area: tri_area(&vertices[v1], &vertices[v2], &vertices[v3]),
                                 texture: f
                             }).collect();
         TriangleMesh {
-            vertices: vertices,
-            tris: triangles
+            vertices, triangles
         }
     }
 
     pub fn new_solid(vertices: Vec<Point3f>, tris: Vec<(usize, usize, usize)>, texture: Texture) -> Self {
         let triangles = tris.into_iter()
                             .map(|(v1, v2, v3)| Triangle {
-                                v1: v1,
-                                v2: v2,
-                                v3: v3,
+                                v1, v2, v3,
                                 normal: Unit::new_normalize((&vertices[v2] - &vertices[v1]).cross(&(&vertices[v3] - &vertices[v1]))),
                                 area: tri_area(&vertices[v1], &vertices[v2], &vertices[v3]),
                                 texture: Box::new(move |_, _, _| texture)
                             }).collect();
         TriangleMesh {
-            vertices: vertices,
-            tris: triangles
+            vertices,
+            triangles
         }
     }
 
@@ -127,7 +122,7 @@ impl TriangleMesh {
 
 
     fn closest_tri(&self, point: Point3f) -> &Triangle {
-        self.tris.iter()
+        self.triangles.iter()
             .map(move |tri| {
 
                 let rel_pos = point - tri.vertex1(&self.vertices);
@@ -150,7 +145,7 @@ impl TriangleMesh {
 
 impl Surface for TriangleMesh {
     fn intersect(&self, ray: Ray) -> Option<f32> {
-        self.tris.iter()
+        self.triangles.iter()
              .filter_map(|tri| tri.intersect(&self.vertices, ray))
              .min_by(|a, b| a.partial_cmp(&b).unwrap_or(Ordering::Equal))
     }
@@ -159,8 +154,8 @@ impl Surface for TriangleMesh {
         self.closest_tri(point).normal
     }
 
-    fn gettexture(&self, point: Point3f) -> Texture {
-        self.closest_tri(point).gettexture(&self.vertices, point)
+    fn get_texture(&self, point: Point3f) -> Texture {
+        self.closest_tri(point).get_texture(&self.vertices, point)
     }
 
     // Uses Welzl's algorithm to solve the bounding sphere problem
@@ -238,6 +233,6 @@ impl Surface for TriangleMesh {
 
         let (center, radius) = smallest_sphere(points, Vec::new());
 
-        Bound { center: center, radius: radius + 1e-3, bypass: false }
+        Bound { center, radius: radius + 1e-3, bypass: false }
     }
 }

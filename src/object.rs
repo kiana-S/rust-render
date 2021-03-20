@@ -3,7 +3,7 @@ mod sphere; pub use sphere::*;
 mod plane; pub use plane::*;
 mod triangle; pub use triangle::*;
 mod bound; pub use bound::*;
-mod pointlight; pub use pointlight::*;
+mod point_light; pub use point_light::*;
 
 use crate::types::*;
 
@@ -21,7 +21,7 @@ pub trait Surface {
 
     // Takes in a point (assumed to be on the object's surface)
     // and returns the texture information on that point.
-    fn gettexture(&self, point: Point3f) -> Texture;
+    fn get_texture(&self, point: Point3f) -> Texture;
 
     // Creates a bounding sphere around the object.
     fn bound(&self) -> Bound;
@@ -38,7 +38,7 @@ impl Object {
         let bound = surface.bound();
         Object {
             surface: Box::new(surface),
-            bound: bound
+            bound
         }
     }
 
@@ -49,7 +49,7 @@ impl Object {
         } else { None }
     }
     pub fn normal(&self, point: Point3f) -> Unit3f { self.surface.normal(point) }
-    pub fn gettexture(&self, point: Point3f) -> Texture { self.surface.gettexture(point) }
+    pub fn get_texture(&self, point: Point3f) -> Texture { self.surface.get_texture(point) }
 }
 
 pub trait Light {
@@ -57,7 +57,7 @@ pub trait Light {
     fn check_shadow(&self, point: Point3f, objects: &Vec<Object>) -> bool;
 
     // Compute color on a point.
-    fn getcolor(&self, point: Point3f) -> Color;
+    fn get_color(&self, point: Point3f) -> Color;
 
     // Compute intensity on a point.
     fn intensity(&self, point: Point3f) -> f32;

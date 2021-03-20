@@ -14,11 +14,7 @@ pub struct PointLight {
 #[allow(dead_code)]
 impl PointLight {
     pub fn new(pos: Point3f, color: Color, intensity: f32) -> PointLight {
-        PointLight {
-            pos: pos,
-            color: color,
-            intensity: intensity
-        }
+        PointLight { pos, color, intensity }
     }
 }
 
@@ -26,11 +22,11 @@ impl Light for PointLight {
     fn check_shadow(&self, point: Point3f, objects: &Vec<Object>) -> bool {
         let max_d = distance(&self.pos, &point);
         objects.iter()
-               .filter_map(|obj| obj.intersect(Ray::from_points(self.pos, point)))
+               .filter_map(|&obj| obj.intersect(Ray::from_points(self.pos, point)))
                .all(|d| d - max_d > -1e-3 )
     }
 
-    fn getcolor(&self, _point: Point3f) -> Color { self.color }
+    fn get_color(&self, _point: Point3f) -> Color { self.color }
 
     fn intensity(&self, _point: Point3f) -> f32 { self.intensity }
 
@@ -44,7 +40,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn pointlight_checkshadow() {
+    fn point_light_check_shadow() {
         let light = PointLight::new(Point3::new(0.0, 1.0, 0.0), Color::white(), 1.0);
         let block = Object::new(Sphere::new_solid(0.0, 0.5, 0.0, 0.1, Texture::new(0.0, 0.0, 0.0, 0.0)));
 

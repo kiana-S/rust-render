@@ -36,15 +36,16 @@ fn render(camera: &Camera, scene: &Scene, filename: &str) -> std::io::Result<()>
 
 fn main() -> std::io::Result<()> {
 
-    let camera = Camera::new(Point3::new(0.0,0.0,2.5), Vector3::new(0.0,0.0,-1.0), 1.0, 16.0 / 9.0, 2.0, 720);
+    let camera = Camera::new(Point3::new(0.0,0.0,3.0), Vector3::new(0.0,0.0,-1.0), 1.0, 16.0 / 9.0, 2.0, 720);
 
     let scene = Scene {
         objects: vec![
-            Object::new(Sphere::new(0.0, 0.0, 0.0, 1.0, |a, b| Texture::new(0.0, a, b, 1.0)))
+            Object::new(Sphere::new_solid(1.0, 0.2, 1.7, 0.2, Texture::new(1.0, 1.0, 1.0, 1.0))),
+            Object::new(Sphere::new_solid(0.0, -1.0, 0.0, 1.0, Texture::new(1.0, 1.0, 1.0, 1.0)))
         ],
         lights: vec![
-            Box::new(PointLight::new(Point3::new(1.0, 0.7, 1.5), Color::white(), 3.0)),
-            Box::new(PointLight::new(Point3::new(-1.0, -0.3, 0.4), Color::new(1.0, 0.0, 0.0), 4.0))
+            Box::new(PointLight::new(Point3::new(1.5, 1.0, 2.5), Color::white(), 3.0)),
+            Box::new(PointLight::new(Point3::new(1.0, -0.4, 1.5), Color::white(), 2.0))
         ],
         background: Color::gray(0.5)
     };

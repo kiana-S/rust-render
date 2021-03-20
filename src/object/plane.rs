@@ -24,7 +24,7 @@ impl Plane {
         where F: Fn(f32, f32) -> Texture
     {
         Plane {
-            center: center,
+            center,
             normal: Unit::new_normalize(x_axis.cross(&y_axis)),
             x_axis: x_axis,
             y_axis: y_axis,
@@ -77,7 +77,7 @@ impl Surface for Plane {
 
     fn normal(&self, _point: Point3f) -> Unit3f { self.normal }
 
-    fn gettexture(&self, point: Point3f) -> Texture {
+    fn get_texture(&self, point: Point3f) -> Texture {
         let rel_pos = point - self.center;
         let proj_point3 = rel_pos - (*self.normal * self.normal.dot(&rel_pos));
 

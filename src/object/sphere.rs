@@ -23,8 +23,7 @@ impl Sphere {
         where F: Fn(f32, f32) -> Texture
     {
         Sphere {
-            center: Point3::new(x, y, z),
-            radius: radius,
+            center: Point3::new(x, y, z), radius,
             texture: Box::new(texture)
         }
     }
@@ -66,10 +65,10 @@ impl Surface for Sphere {
         Unit::new_normalize(point - self.center)
     }
 
-    fn gettexture(&self, point: Point3f) -> Texture {
+    fn get_texture(&self, point: Point3f) -> Texture {
         let normal = self.normal(point);
 
-        // In this particular case, the normal is simular to a point on a unit sphere
+        // In this particular case, the normal is similar to a point on a unit sphere
         // centred around the origin. We can thus use the normal coordinates to compute
         // the spherical coordinates of the point.
         let x = 0.5 + normal.z.atan2(normal.x) / (2.0 * PI);
@@ -78,5 +77,5 @@ impl Surface for Sphere {
         (*self.texture)(x, y)
     }
 
-    fn bound(&self) -> Bound { Bound::bypass() }
+    fn bound(&self) -> Bound { Bound { center: self.center, radius: self.radius, bypass: false } }
 }

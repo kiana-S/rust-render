@@ -17,10 +17,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn from_parts(origin: Point3f, direction: Unit3f) -> Self {
-        Ray {
-            origin: origin,
-            direction: direction
-        }
+        Ray { origin, direction }
     }
     pub fn new(origin: Point3f, direction: Vector3f) -> Self { Ray::from_parts(origin, Unit::new_normalize(direction)) }
     pub fn from_points(origin: Point3f, points_to: Point3f) -> Self { Ray::new(origin, points_to - origin) }
@@ -109,7 +106,7 @@ impl Texture {
     pub fn new(red: f32, green: f32, blue: f32, albedo: f32) -> Self {
         Texture {
             color: Color::new(red, green, blue),
-            albedo: albedo
+            albedo
         }
     }
 }
