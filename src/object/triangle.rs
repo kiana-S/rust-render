@@ -160,6 +160,30 @@ impl Surface for TriangleMesh {
 
     // Uses Welzl's algorithm to solve the bounding sphere problem
     fn bound(&self) -> Bound {
+        fn smallest_sphere_plane(points: Vec<&Point3f>, boundary: Vec<&Point3f>) -> (Point3f, f32) {
+            if points.len() == 0 || boundary.len() == 3 {
+                match boundary.len() {
+                    0 => (Point3::new(0.0, 0.0, 0.0), 0.0),
+                    1 => (*boundary[0], 0.0),
+                    2 => { let half_span = 0.5 * (boundary[1] - boundary[0]);
+                            (*boundary[0] + half_span, half_span.norm()) },
+                    3 => triangle_sphere(boundary[0], boundary[1], boundary[2]),
+                    _ => unreachable!()
+                }
+            } else {
+                let removed = points[0];
+                let points = Vec::from(&points[1..]);
+
+                let bound = smallest_sphere(points.clone(), boundary.clone());
+                if distance(&bound.0, removed) < bound.1 { return bound; }
+
+                let mut boundary = boundary.clone();
+                boundary.push(removed);
+
+                smallest_sphere_plane(points, boundary)
+            }
+        }
+
         fn triangle_sphere(point1: &Point3f, point2: &Point3f, point3: &Point3f) -> (Point3f, f32) {
             let a = point3 - point1;
             let b = point2 - point1;
@@ -181,22 +205,30 @@ impl Surface for TriangleMesh {
                                             point4.to_homogeneous().transpose()]);
 
             let a = matrix.determinant() * 2.0;
-            let mut matrix_mut = matrix.clone();
 
-            let squares = Vector4::new(point1.coords.norm_squared(), point2.coords.norm_squared(), point3.coords.norm_squared(), point4.coords.norm_squared());
-            matrix_mut.set_column(0, &squares);
-            let center_x = matrix_mut.determinant();
+            if (a != 0.0) {
+                let mut matrix_mut = matrix.clone();
 
-            matrix_mut.set_column(1, &matrix.index((.., 0)));
-            let center_y = -matrix_mut.determinant();
+                let squares = Vector4::new(point1.coords.norm_squared(), point2.coords.norm_squared(), point3.coords.norm_squared(), point4.coords.norm_squared());
+                matrix_mut.set_column(0, &squares);
+                let center_x = matrix_mut.determinant();
 
-            matrix_mut.set_column(2, &matrix.index((.., 1)));
-            let center_z = matrix_mut.determinant();
+                matrix_mut.set_column(1, &matrix.index((.., 0)));
+                let center_y = -matrix_mut.determinant();
 
-            let center = Point3::new(center_x / a, center_y / a, center_z / a);
-            let radius = distance(point1, &center);
+                matrix_mut.set_column(2, &matrix.index((.., 1)));
+                let center_z = matrix_mut.determinant();
 
-            (center, radius)
+                let center = Point3::new(center_x / a, center_y / a, center_z / a);
+                let radius = distance(point1, &center);
+
+                (center, radius)
+            } else {
+                let points = vec![point1, point2, point3, point4];
+                let boundary = Vec::new();
+
+                smallest_sphere_plane(points, boundary)
+            }
         }
 
         fn smallest_sphere(points: Vec<&Point3f>, boundary: Vec<&Point3f>) -> (Point3f, f32) {
